@@ -29,6 +29,8 @@ public class ClientLogConfigTest {
         System.out.println(clientId1);
 
 
+
+
         try {
             SendResult result1 = producer.send(new Message("test20203080501", "hello localhost:9876".getBytes()));
             System.out.printf("%s%n", result1);
@@ -40,6 +42,10 @@ public class ClientLogConfigTest {
 
 
         TimeUnit.SECONDS.sleep(5);
+        System.out.println("sleep结束");
+        producer.shutdown();
+
+        System.out.println("结束");
 
     }
 }

@@ -43,6 +43,7 @@ public class Producer {
          */
         DefaultMQProducer producer = new DefaultMQProducer(PRODUCER_GROUP);
 
+        producer.setNamesrvAddr("192.168.43.106:13001");
         /*
          * Specify name server addresses.
          *
