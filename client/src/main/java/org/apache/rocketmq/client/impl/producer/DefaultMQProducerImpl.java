@@ -195,6 +195,7 @@ public class DefaultMQProducerImpl implements MQProducerInner {
 
                 this.checkConfig();
 
+                // producer启动的时候如果生产者组不是CLIENT_INNER_PRODUCER, 则需要检查instanceName, 如果是DEFAULT, 则变更为pid#nanoTimes
                 if (!this.defaultMQProducer.getProducerGroup().equals(MixAll.CLIENT_INNER_PRODUCER_GROUP)) {
                     this.defaultMQProducer.changeInstanceNameToPID();
                 }

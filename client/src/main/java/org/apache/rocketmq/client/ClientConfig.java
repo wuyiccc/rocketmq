@@ -94,6 +94,7 @@ public class ClientConfig {
 
     public void changeInstanceNameToPID() {
         if (this.instanceName.equals("DEFAULT")) {
+            // 解决同一JVM进程下, 启动多个producer连接到不同的mq集群, 只有一个MQClientInstance导致的报错问题
             this.instanceName = UtilAll.getPid() + "#" + System.nanoTime();
         }
     }
