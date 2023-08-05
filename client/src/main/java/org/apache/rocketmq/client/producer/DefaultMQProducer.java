@@ -84,7 +84,7 @@ public class DefaultMQProducer extends ClientConfig implements MQProducer {
     private volatile int defaultTopicQueueNums = 4;
 
     /**
-     * Timeout for sending messages.
+     * Timeout for sending messages. 消息发送失败超时时间, 与retryTimesWhenSendFailed组合 3s内最多重试2次
      */
     private int sendMsgTimeout = 3000;
 
@@ -97,6 +97,7 @@ public class DefaultMQProducer extends ClientConfig implements MQProducer {
      * Maximum number of retry to perform internally before claiming sending failure in synchronous mode. </p>
      *
      * This may potentially cause message duplication which is up to application developers to resolve.
+     * 消息发送失败重试次数
      */
     private int retryTimesWhenSendFailed = 2;
 

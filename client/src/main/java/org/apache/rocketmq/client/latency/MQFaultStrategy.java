@@ -26,9 +26,20 @@ public class MQFaultStrategy {
     private final static InternalLogger log = ClientLogger.getLog();
     private final LatencyFaultTolerance<String> latencyFaultTolerance = new LatencyFaultToleranceImpl();
 
+    /**
+     * 发送延迟故障规避配置, false代表如果本次消息发送失败, 则重试的时候会规避broker-a, 但是发送下一条消息的时候还是会选择broker-a
+     * 如果为true, 一旦broker-a发送失败, 那么在一段时间内, broker-a都会被认为不可用, 在未来一段时间内, 客户端都不会向broker-a发送消息
+     */
     private boolean sendLatencyFaultEnable = false;
 
+    /**
+     * 延迟级别数组
+     */
     private long[] latencyMax = {50L, 100L, 550L, 1000L, 2000L, 3000L, 15000L};
+
+    /**
+     * 不可用延迟阶梯数组, 与latencyMax中的值一一对应
+     */
     private long[] notAvailableDuration = {0L, 0L, 30000L, 60000L, 120000L, 180000L, 600000L};
 
     public long[] getNotAvailableDuration() {
@@ -97,6 +108,11 @@ public class MQFaultStrategy {
         }
     }
 
+    /**
+     * 计算不可用时间
+     * @param currentLatency 当前延迟耗时
+     * @return 根据当前延迟耗时计算出来的broker不可用时间
+     */
     private long computeNotAvailableDuration(final long currentLatency) {
         for (int i = latencyMax.length - 1; i >= 0; i--) {
             if (currentLatency >= latencyMax[i])
