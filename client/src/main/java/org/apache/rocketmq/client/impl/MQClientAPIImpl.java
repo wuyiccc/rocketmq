@@ -539,6 +539,7 @@ public class MQClientAPIImpl {
     ) {
         final long beginStartTime = System.currentTimeMillis();
         try {
+            // 这里内部调用的时候会受到默认65535 clientAsyncSemaphoreValue值的限制
             this.remotingClient.invokeAsync(addr, request, timeoutMillis, new InvokeCallback() {
                 @Override
                 public void operationComplete(ResponseFuture responseFuture) {

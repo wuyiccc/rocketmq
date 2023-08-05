@@ -127,7 +127,9 @@ public class DefaultMQProducerImpl implements MQProducerInner {
         this.defaultMQProducer = defaultMQProducer;
         this.rpcHook = rpcHook;
 
+        // 设置线程池有界队列长度为50000
         this.asyncSenderThreadPoolQueue = new LinkedBlockingQueue<Runnable>(50000);
+        // 设置异步线程池 默认线程数量为cpu核心数
         this.defaultAsyncSenderExecutor = new ThreadPoolExecutor(
             Runtime.getRuntime().availableProcessors(),
             Runtime.getRuntime().availableProcessors(),
@@ -574,6 +576,7 @@ public class DefaultMQProducerImpl implements MQProducerInner {
                             break;
                         }
 
+                        // 这里调用async方法, 里面会校验clientAsyncSemaphoreValue, 默认最大为65535
                         sendResult = this.sendKernelImpl(msg, mq, communicationMode, sendCallback, topicPublishInfo, timeout - costTime);
                         endTimestamp = System.currentTimeMillis();
                         this.updateFaultItem(mq.getBrokerName(), endTimestamp - beginTimestampPrev, false);

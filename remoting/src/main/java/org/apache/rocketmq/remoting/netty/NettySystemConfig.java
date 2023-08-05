@@ -45,6 +45,8 @@ public class NettySystemConfig {
 
     public static final boolean NETTY_POOLED_BYTE_BUF_ALLOCATOR_ENABLE = //
         Boolean.parseBoolean(System.getProperty(COM_ROCKETMQ_REMOTING_NETTY_POOLED_BYTE_BUF_ALLOCATOR_ENABLE, "false"));
+
+    // 异步调用并发度配置, 默认最大为65535
     public static final int CLIENT_ASYNC_SEMAPHORE_VALUE = //
         Integer.parseInt(System.getProperty(COM_ROCKETMQ_REMOTING_CLIENT_ASYNC_SEMAPHORE_VALUE, "65535"));
     public static final int CLIENT_ONEWAY_SEMAPHORE_VALUE =

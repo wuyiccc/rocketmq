@@ -66,6 +66,7 @@ public abstract class NettyRemotingAbstract {
 
     /**
      * Semaphore to limit maximum number of on-going asynchronous requests, which protects system memory footprint.
+     * 异步调用最大并发度默认为65535 {@link NettySystemConfig#CLIENT_ASYNC_SEMAPHORE_VALUE
      */
     protected final Semaphore semaphoreAsync;
 
@@ -115,6 +116,7 @@ public abstract class NettyRemotingAbstract {
      */
     public NettyRemotingAbstract(final int permitsOneway, final int permitsAsync) {
         this.semaphoreOneway = new Semaphore(permitsOneway, true);
+        // 设置异步调用最大并发度, 默认是65535
         this.semaphoreAsync = new Semaphore(permitsAsync, true);
     }
 
@@ -453,6 +455,7 @@ public abstract class NettyRemotingAbstract {
         throws InterruptedException, RemotingTooMuchRequestException, RemotingTimeoutException, RemotingSendRequestException {
         long beginStartTime = System.currentTimeMillis();
         final int opaque = request.getOpaque();
+        // 尝试获取信号量, 默认最大为65535
         boolean acquired = this.semaphoreAsync.tryAcquire(timeoutMillis, TimeUnit.MILLISECONDS);
         if (acquired) {
             final SemaphoreReleaseOnlyOnce once = new SemaphoreReleaseOnlyOnce(this.semaphoreAsync);
