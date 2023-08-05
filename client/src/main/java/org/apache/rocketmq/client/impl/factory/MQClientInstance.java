@@ -85,6 +85,10 @@ import org.apache.rocketmq.remoting.exception.RemotingException;
 import org.apache.rocketmq.remoting.netty.NettyClientConfig;
 import org.apache.rocketmq.remoting.protocol.RemotingCommand;
 
+/**
+ * rocketmq客户端实例, 存储在{@link org.apache.rocketmq.client.impl.MQClientManager}的factoryTable中
+ * 该客户端实例下可以持有多个producer, 存在producerTable中
+ */
 public class MQClientInstance {
     private final static long LOCK_TIMEOUT_MILLIS = 3000;
     private final InternalLogger log = ClientLogger.getLog();
