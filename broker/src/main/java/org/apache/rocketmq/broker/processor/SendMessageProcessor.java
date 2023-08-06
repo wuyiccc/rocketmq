@@ -542,6 +542,7 @@ public class SendMessageProcessor extends AbstractSendMessageProcessor {
 
             response.setRemark(null);
 
+            System.out.println("msgId: " + putMessageResult.getAppendMessageResult().getMsgId());
             responseHeader.setMsgId(putMessageResult.getAppendMessageResult().getMsgId());
             responseHeader.setQueueId(queueIdInt);
             responseHeader.setQueueOffset(putMessageResult.getAppendMessageResult().getLogicsOffset());

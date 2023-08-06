@@ -711,6 +711,7 @@ public class DefaultMQProducerImpl implements MQProducerInner {
             byte[] prevBody = msg.getBody();
             try {
                 //for MessageBatch,ID has been set in the generating process
+                // 设置msgId
                 if (!(msg instanceof MessageBatch)) {
                     MessageClientIDSetter.setUniqID(msg);
                 }
@@ -841,6 +842,7 @@ public class DefaultMQProducerImpl implements MQProducerInner {
                         if (timeout < costTimeSync) {
                             throw new RemotingTooMuchRequestException("sendKernelImpl call timeout");
                         }
+                        log.warn("==================generate uniqueKey: {}", msg.getProperty(MessageConst.PROPERTY_UNIQ_CLIENT_MESSAGE_ID_KEYIDX));
                         sendResult = this.mQClientFactory.getMQClientAPIImpl().sendMessage(
                             brokerAddr,
                             mq.getBrokerName(),
@@ -850,6 +852,9 @@ public class DefaultMQProducerImpl implements MQProducerInner {
                             communicationMode,
                             context,
                             this);
+                        log.warn("================generate msgId: {}, offsetMsgId: {}, queueOffset: {}", sendResult.getMsgId(), sendResult.getOffsetMsgId(), sendResult.getQueueOffset());
+                        // 抛出异常, 主动失败, 测试重试机制
+//                        throw new RemotingException("custom send failed");
                         break;
                     default:
                         assert false;

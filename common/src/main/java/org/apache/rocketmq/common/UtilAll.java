@@ -252,11 +252,19 @@ public class UtilAll {
         return (int) (crc32.getValue() & 0x7FFFFFFF);
     }
 
+    /**
+     * 字节转16进制字符串 1字节有8位, 一个16进制只能代表4位, 所以这里长度要基于字节长度*2
+     * @param src 字节数组
+     * @return 16进制字符串
+     */
     public static String bytes2string(byte[] src) {
         char[] hexChars = new char[src.length * 2];
         for (int j = 0; j < src.length; j++) {
+            // 取正值 例如 byte -87 就会变为 169, 0xff会只会截取低8位的值作为int的值
             int v = src[j] & 0xFF;
+            // 取字节高4位
             hexChars[j * 2] = HEX_ARRAY[v >>> 4];
+            // 取字节低4位
             hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
         }
         return new String(hexChars);

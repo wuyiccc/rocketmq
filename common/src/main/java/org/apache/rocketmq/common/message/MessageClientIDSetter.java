@@ -37,12 +37,17 @@ public class MessageClientIDSetter {
         } catch (Exception e) {
             ip = createFakeIP();
         }
+        // ip长度 4/6byte + pid 2byte + classload hascode 4byte + timediff 4byte + incre_no 2byte
         LEN = ip.length + 2 + 4 + 4 + 2;
         ByteBuffer tempBuffer = ByteBuffer.allocate(ip.length + 2 + 4);
+        // 设置ip
         tempBuffer.put(ip);
+        // 设置进程id
         tempBuffer.putShort((short) UtilAll.getPid());
+        // 设置类加载器hashCode值
         tempBuffer.putInt(MessageClientIDSetter.class.getClassLoader().hashCode());
         FIX_STRING = UtilAll.bytes2string(tempBuffer.array()).toCharArray();
+        // 记录启动时间
         setStartTime(System.currentTimeMillis());
         COUNTER = new AtomicInteger(0);
     }
@@ -111,8 +116,13 @@ public class MessageClientIDSetter {
         return value & 0x0000FFFF;
     }
 
+    /**
+     * 生成msg唯一id
+     * @return msgId
+     */
     public static String createUniqID() {
         char[] sb = new char[LEN * 2];
+        // 设置ip信息
         System.arraycopy(FIX_STRING, 0, sb, 0, FIX_STRING.length);
         long current = System.currentTimeMillis();
         if (current >= nextStartTime) {
@@ -124,13 +134,16 @@ public class MessageClientIDSetter {
             diff = 0;
         }
         int pos = FIX_STRING.length;
+        // 设置时间戳: 当前系统时间-启动时间
         UtilAll.writeInt(sb, pos, diff);
         pos += 8;
+        // 设置自增序列值
         UtilAll.writeShort(sb, pos, COUNTER.getAndIncrement());
         return new String(sb);
     }
 
     public static void setUniqID(final Message msg) {
+        // 如果UNIQ_KEY不存在, 才会设置UNIQ_KEY, 这样msg发送失败重试的时候就不会重新设置msgId了, 保证了同一个msg重试的时候, msgId的唯一性
         if (msg.getProperty(MessageConst.PROPERTY_UNIQ_CLIENT_MESSAGE_ID_KEYIDX) == null) {
             msg.putProperty(MessageConst.PROPERTY_UNIQ_CLIENT_MESSAGE_ID_KEYIDX, createUniqID());
         }
