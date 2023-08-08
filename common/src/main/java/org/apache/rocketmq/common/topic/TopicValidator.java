@@ -36,6 +36,7 @@ public class TopicValidator {
     public static final String RMQ_SYS_OFFSET_MOVED_EVENT = "OFFSET_MOVED_EVENT";
 
     public static final String SYSTEM_TOPIC_PREFIX = "rmq_sys_";
+    // 定义有效字符串
     public static final boolean[] VALID_CHAR_BIT_MAP = new boolean[128];
     private static final int TOPIC_MAX_LENGTH = 127;
 
@@ -64,6 +65,7 @@ public class TopicValidator {
         NOT_ALLOWED_SEND_TOPIC_SET.add(RMQ_SYS_SELF_TEST_TOPIC);
         NOT_ALLOWED_SEND_TOPIC_SET.add(RMQ_SYS_OFFSET_MOVED_EVENT);
 
+        // 定义有效字符, 存入bitMap中
         // regex: ^[%|a-zA-Z0-9_-]+$
         // %
         VALID_CHAR_BIT_MAP['%'] = true;
@@ -88,11 +90,13 @@ public class TopicValidator {
     }
 
     public static boolean isTopicOrGroupIllegal(String str) {
+        // 通过位图来比较字符串中字符的有效性, 替换正则匹配表达式
         int strLen = str.length();
         int len = VALID_CHAR_BIT_MAP.length;
         boolean[] bitMap = VALID_CHAR_BIT_MAP;
         for (int i = 0; i < strLen; i++) {
             char ch = str.charAt(i);
+            // 如果字符值 >= 128, 或者在bitMap中对应的字符不是有效字符
             if (ch >= len || !bitMap[ch]) {
                 return true;
             }

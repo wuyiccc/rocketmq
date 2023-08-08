@@ -43,6 +43,7 @@ public class RemoteBrokerOffsetStore implements OffsetStore {
     private final static InternalLogger log = ClientLogger.getLog();
     private final MQClientInstance mQClientFactory;
     private final String groupName;
+    // 本地消费进度内存缓存
     private ConcurrentMap<MessageQueue, AtomicLong> offsetTable =
         new ConcurrentHashMap<MessageQueue, AtomicLong>();
 
@@ -60,13 +61,16 @@ public class RemoteBrokerOffsetStore implements OffsetStore {
         if (mq != null) {
             AtomicLong offsetOld = this.offsetTable.get(mq);
             if (null == offsetOld) {
+                // 当前offset旧值不存在的时候才会set进去
                 offsetOld = this.offsetTable.putIfAbsent(mq, new AtomicLong(offset));
             }
 
             if (null != offsetOld) {
                 if (increaseOnly) {
+                    // 如果是递增offset, 则 通过cas进行设置值
                     MixAll.compareAndIncreaseOnly(offsetOld, offset);
                 } else {
+                    // 如果不要求offset递增, 那么直接修改atomicLong旧对象的值即可
                     offsetOld.set(offset);
                 }
             }
@@ -88,8 +92,10 @@ public class RemoteBrokerOffsetStore implements OffsetStore {
                 }
                 case READ_FROM_STORE: {
                     try {
+                        // push集群消费从broker上获取指定mq队列的消费offset
                         long brokerOffset = this.fetchConsumeOffsetFromBroker(mq);
                         AtomicLong offset = new AtomicLong(brokerOffset);
+                        // 存入offsetTable对应的mq中
                         this.updateOffset(mq, offset.get(), false);
                         return brokerOffset;
                     }
