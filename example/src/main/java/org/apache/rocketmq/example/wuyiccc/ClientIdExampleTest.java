@@ -24,13 +24,13 @@ public class ClientIdExampleTest {
         System.out.println(clientId1);
 
 
-        DefaultMQProducer producer2 = new DefaultMQProducer("wy_test_producer_group1");
-        producer2.setNamesrvAddr("wuji.local.wuyiccc.com:13001");
-        producer2.setUnitName("unit2");
-        producer2.start();
-        String clientId2 = producer2.buildMQClientId();
-        System.out.println(clientId2);
-
+        //DefaultMQProducer producer2 = new DefaultMQProducer("wy_test_producer_group1");
+        //producer2.setNamesrvAddr("wuji.local.wuyiccc.com:13001");
+        //producer2.setUnitName("unit2");
+        //producer2.start();
+        //String clientId2 = producer2.buildMQClientId();
+        //System.out.println(clientId2);
+        //
         try {
             SendResult result1 = producer.send(new Message("test20203080501", "hello localhost:9876".getBytes()));
             System.out.printf("%s%n", result1);
@@ -39,17 +39,18 @@ public class ClientIdExampleTest {
             e.printStackTrace();
             System.out.println("--------------------------first--------------------");
         }
-
-        try {
-            SendResult result2 = producer2.send(new Message("test20203080502", "hello wuji.local.wuyiccc.com:13001".getBytes()));
-            System.out.printf("%s%n", result2);
-        } catch (Throwable e) {
-            System.out.println("--------------------------second--------------------");
-            e.printStackTrace();
-            System.out.println("--------------------------second--------------------");
-        }
-
-        TimeUnit.SECONDS.sleep(5);
+        producer.shutdown();
+        //
+        //try {
+        //    SendResult result2 = producer2.send(new Message("test20203080502", "hello wuji.local.wuyiccc.com:13001".getBytes()));
+        //    System.out.printf("%s%n", result2);
+        //} catch (Throwable e) {
+        //    System.out.println("--------------------------second--------------------");
+        //    e.printStackTrace();
+        //    System.out.println("--------------------------second--------------------");
+        //}
+        //
+        //TimeUnit.SECONDS.sleep(5);
 
     }
 }
