@@ -82,12 +82,15 @@ public class NamesrvStartup {
         final NamesrvConfig namesrvConfig = new NamesrvConfig();
         final NettyServerConfig nettyServerConfig = new NettyServerConfig();
         nettyServerConfig.setListenPort(9876);
+        // 如果启动的命令行带上了-c这个选项, 那么-c这个选项的意思就是带上一个配置文件的地址
         if (commandLine.hasOption('c')) {
             String file = commandLine.getOptionValue('c');
             if (file != null) {
+                // 基于输入流从配置文件里读取了配置，读取的配置会放入一个Properties里去
                 InputStream in = new BufferedInputStream(new FileInputStream(file));
                 properties = new Properties();
                 properties.load(in);
+                // 把读取到的配置都放入到两个核心配置类里去
                 MixAll.properties2Object(properties, namesrvConfig);
                 MixAll.properties2Object(properties, nettyServerConfig);
 
@@ -98,6 +101,7 @@ public class NamesrvStartup {
             }
         }
 
+        // 如果命令行带了-p的选项, 就打印出NameServer的所有的配置信息, 然后停止mqserver
         if (commandLine.hasOption('p')) {
             InternalLogger console = InternalLoggerFactory.getLogger(LoggerName.NAMESRV_CONSOLE_NAME);
             MixAll.printObjectProperties(console, namesrvConfig);
@@ -105,8 +109,10 @@ public class NamesrvStartup {
             System.exit(0);
         }
 
+        // 把namesrv命令行中带上的配置选项都读取出来, 然后覆盖到NamesrvConfig里去
         MixAll.properties2Object(ServerUtil.commandLine2Properties(commandLine), namesrvConfig);
 
+        // 如果ROCKETMQ_HOME是空白的, 提示需要设置ROCKETMQ_HOME环境变量, 然后退出nameserver
         if (null == namesrvConfig.getRocketmqHome()) {
             System.out.printf("Please set the %s variable in your environment to match the location of the RocketMQ installation%n", MixAll.ROCKETMQ_HOME_ENV);
             System.exit(-2);
@@ -120,6 +126,7 @@ public class NamesrvStartup {
 
         log = InternalLoggerFactory.getLogger(LoggerName.NAMESRV_LOGGER_NAME);
 
+        // 打印nameserver的所有配置信息(在log文件中)
         MixAll.printObjectProperties(log, namesrvConfig);
         MixAll.printObjectProperties(log, nettyServerConfig);
 
