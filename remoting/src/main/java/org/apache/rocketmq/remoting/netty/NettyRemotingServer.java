@@ -203,17 +203,24 @@ public class NettyRemotingServer extends NettyRemotingAbstract implements Remoti
                 .option(ChannelOption.SO_REUSEADDR, true)
                 .option(ChannelOption.SO_KEEPALIVE, false)
                 .childOption(ChannelOption.TCP_NODELAY, true)
+                    // netty服务器监听的端口号
                 .localAddress(new InetSocketAddress(this.nettyServerConfig.getListenPort()))
                 .childHandler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     public void initChannel(SocketChannel ch) throws Exception {
+                        // 注册channel链接处理器
                         ch.pipeline()
+                                // handleShakeHandler负责链接握手, 用一个新的线程池defaultEventExecutorGroup处理业务handler
                             .addLast(defaultEventExecutorGroup, HANDSHAKE_HANDLER_NAME, handshakeHandler)
                             .addLast(defaultEventExecutorGroup,
                                 encoder,
+                                // NettyDecoder负责编解码的
                                 new NettyDecoder(),
+                                // IdleStateHandler负责空闲链接管理的
                                 new IdleStateHandler(0, 0, nettyServerConfig.getServerChannelMaxIdleTimeSeconds()),
+                                // connectionManageHandler负责网络连接管理的
                                 connectionManageHandler,
+                                // serverHandler负责最关键的网络请求处理的
                                 serverHandler
                             );
                     }

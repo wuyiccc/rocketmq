@@ -75,17 +75,22 @@ public class NamesrvController {
 
     public boolean initialize() {
 
+        // 加载kv配置
         this.kvConfigManager.load();
 
+        // 初始化netty服务器
         this.remotingServer = new NettyRemotingServer(this.nettyServerConfig, this.brokerHousekeepingService);
 
+        // netty服务器的工作线程池
         this.remotingExecutor =
             Executors.newFixedThreadPool(nettyServerConfig.getServerWorkerThreads(), new ThreadFactoryImpl("RemotingExecutorThread_"));
 
         this.registerProcessor();
 
+        // 定时扫描哪些broker没有发送心跳
         this.scheduledExecutorService.scheduleAtFixedRate(NamesrvController.this.routeInfoManager::scanNotActiveBroker, 5, 10, TimeUnit.SECONDS);
 
+        // 定时打印kv配置信息
         this.scheduledExecutorService.scheduleAtFixedRate(NamesrvController.this.kvConfigManager::printAllPeriodically, 1, 10, TimeUnit.MINUTES);
 
         if (TlsSystemConfig.tlsMode != TlsMode.DISABLED) {
@@ -149,8 +154,11 @@ public class NamesrvController {
     }
 
     public void shutdown() {
+        // 关闭netty服务
         this.remotingServer.shutdown();
+        // 关闭netty服务的工作线程
         this.remotingExecutor.shutdown();
+        // 关闭定时任务线程
         this.scheduledExecutorService.shutdown();
 
         if (this.fileWatchService != null) {

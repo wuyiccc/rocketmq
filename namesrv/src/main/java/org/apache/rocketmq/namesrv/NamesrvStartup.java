@@ -150,7 +150,10 @@ public class NamesrvStartup {
             System.exit(-3);
         }
 
+        // kill -9强制终止的时候不会触发该代码, kill -15的时候会触发该代码执行, 释放网络资源和线程资源等
         Runtime.getRuntime().addShutdownHook(new ShutdownHookThread(log, (Callable<Void>) () -> {
+            System.out.println("jvm关闭回调测试");
+            log.info("jvm 关闭回调测试");
             controller.shutdown();
             return null;
         }));
