@@ -98,15 +98,23 @@ public class BrokerStartup {
                 System.exit(-1);
             }
 
+            // broker的核心配置类
+            // broker配置
             final BrokerConfig brokerConfig = new BrokerConfig();
+            // netty服务器配置
             final NettyServerConfig nettyServerConfig = new NettyServerConfig();
+            // netty客户端配置
             final NettyClientConfig nettyClientConfig = new NettyClientConfig();
 
+            // 设置netty客户端是否使用了tls加密机制
             nettyClientConfig.setUseTLS(Boolean.parseBoolean(System.getProperty(TLS_ENABLE,
                 String.valueOf(TlsSystemConfig.tlsMode == TlsMode.ENFORCING))));
+            // broker作为netty服务器的监听端口号是10911
             nettyServerConfig.setListenPort(10911);
+            // broker用来存储消息的一些配置
             final MessageStoreConfig messageStoreConfig = new MessageStoreConfig();
 
+            // 如果broker是slave的话, 设置访问消息在内存中的比率 -10
             if (BrokerRole.SLAVE == messageStoreConfig.getBrokerRole()) {
                 int ratio = messageStoreConfig.getAccessMessageInMemoryMaxRatio() - 10;
                 messageStoreConfig.setAccessMessageInMemoryMaxRatio(ratio);
@@ -133,11 +141,13 @@ public class BrokerStartup {
 
             MixAll.properties2Object(ServerUtil.commandLine2Properties(commandLine), brokerConfig);
 
+            // 检查rocketmqhome环境变量
             if (null == brokerConfig.getRocketmqHome()) {
                 System.out.printf("Please set the %s variable in your environment to match the location of the RocketMQ installation", MixAll.ROCKETMQ_HOME_ENV);
                 System.exit(-2);
             }
 
+            // 读取nameserver地址列表
             String namesrvAddr = brokerConfig.getNamesrvAddr();
             if (null != namesrvAddr) {
                 try {
@@ -153,6 +163,7 @@ public class BrokerStartup {
                 }
             }
 
+            // 判断broker的角色, 针对不同的角色做处理
             switch (messageStoreConfig.getBrokerRole()) {
                 case ASYNC_MASTER:
                 case SYNC_MASTER:
@@ -169,10 +180,13 @@ public class BrokerStartup {
                     break;
             }
 
+            // 判断是否基于dleger技术来管理主从不同和commitLog
+            // 如果是的话, 就把brokerId设置为-1
             if (messageStoreConfig.isEnableDLegerCommitLog()) {
                 brokerConfig.setBrokerId(-1);
             }
 
+            // 设置ha监听端口好
             messageStoreConfig.setHaListenPort(nettyServerConfig.getListenPort() + 1);
             LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
             JoranConfigurator configurator = new JoranConfigurator();
@@ -187,6 +201,7 @@ public class BrokerStartup {
             }
             configurator.doConfigure(brokerConfig.getRocketmqHome() + "/conf/logback_broker.xml");
 
+            // 如果命令行中包含了-p参数
             if (commandLine.hasOption('p')) {
                 InternalLogger console = InternalLoggerFactory.getLogger(LoggerName.BROKER_CONSOLE_NAME);
                 MixAll.printObjectProperties(console, brokerConfig);
@@ -195,6 +210,7 @@ public class BrokerStartup {
                 MixAll.printObjectProperties(console, messageStoreConfig);
                 System.exit(0);
             } else if (commandLine.hasOption('m')) {
+                // 如果命令行中包含了-m参数, 同样也是打印各种配置
                 InternalLogger console = InternalLoggerFactory.getLogger(LoggerName.BROKER_CONSOLE_NAME);
                 MixAll.printObjectProperties(console, brokerConfig, true);
                 MixAll.printObjectProperties(console, nettyServerConfig, true);
@@ -203,6 +219,7 @@ public class BrokerStartup {
                 System.exit(0);
             }
 
+            // 如果命令行包含了-p参数,
             log = InternalLoggerFactory.getLogger(LoggerName.BROKER_LOGGER_NAME);
             MixAll.printObjectProperties(log, brokerConfig);
             MixAll.printObjectProperties(log, nettyServerConfig);
