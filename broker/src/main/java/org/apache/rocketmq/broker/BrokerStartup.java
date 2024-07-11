@@ -234,12 +234,15 @@ public class BrokerStartup {
             // remember all configs to prevent discard
             controller.getConfiguration().registerConfig(properties);
 
+
+            // 初始化BrokerController
             boolean initResult = controller.initialize();
             if (!initResult) {
                 controller.shutdown();
                 System.exit(-3);
             }
 
+            // 注册jvm关闭钩子
             Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
                 private volatile boolean hasShutdown = false;
                 private AtomicInteger shutdownTimes = new AtomicInteger(0);
@@ -259,6 +262,7 @@ public class BrokerStartup {
                 }
             }, "ShutdownHook"));
 
+            // 返回创建好的controller
             return controller;
         } catch (Throwable e) {
             e.printStackTrace();
