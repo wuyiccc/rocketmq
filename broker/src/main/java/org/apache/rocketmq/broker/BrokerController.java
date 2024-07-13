@@ -872,10 +872,12 @@ public class BrokerController {
     }
 
     public void start() throws Exception {
+        // 启动核心的消息存储组件
         if (this.messageStore != null) {
             this.messageStore.start();
         }
 
+        // 启动netty服务器
         if (this.remotingServer != null) {
             this.remotingServer.start();
         }
@@ -888,9 +890,11 @@ public class BrokerController {
             this.fileWatchService.start();
         }
 
+        // 让broker通过netty客户端去发送请求出去给别人
         if (this.brokerOuterAPI != null) {
             this.brokerOuterAPI.start();
         }
+
 
         if (this.pullRequestHoldService != null) {
             this.pullRequestHoldService.start();
@@ -906,6 +910,7 @@ public class BrokerController {
             this.registerBrokerAll(true, false, true);
         }
 
+        // 向线程池提交任务，向nameserver进行注册
         this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
 
             @Override
@@ -948,6 +953,7 @@ public class BrokerController {
     }
 
     public synchronized void registerBrokerAll(final boolean checkOrderConfig, boolean oneway, boolean forceRegister) {
+        // topic配置相关信息
         TopicConfigSerializeWrapper topicConfigWrapper = this.getTopicConfigManager().buildTopicConfigSerializeWrapper();
 
         if (!PermName.isWriteable(this.getBrokerConfig().getBrokerPermission())
@@ -962,17 +968,20 @@ public class BrokerController {
             topicConfigWrapper.setTopicConfigTable(topicConfigTable);
         }
 
+        // 判断是否需要进行注册
         if (forceRegister || needRegister(this.brokerConfig.getBrokerClusterName(),
             this.getBrokerAddr(),
             this.brokerConfig.getBrokerName(),
             this.brokerConfig.getBrokerId(),
             this.brokerConfig.getRegisterBrokerTimeoutMills())) {
+            // 执行注册
             doRegisterBrokerAll(checkOrderConfig, oneway, topicConfigWrapper);
         }
     }
 
     private void doRegisterBrokerAll(boolean checkOrderConfig, boolean oneway,
         TopicConfigSerializeWrapper topicConfigWrapper) {
+        // 调用brokerOuterApi发送注册请求
         List<RegisterBrokerResult> registerBrokerResultList = this.brokerOuterAPI.registerBrokerAll(
             this.brokerConfig.getBrokerClusterName(),
             this.getBrokerAddr(),
@@ -985,6 +994,7 @@ public class BrokerController {
             this.brokerConfig.getRegisterBrokerTimeoutMills(),
             this.brokerConfig.isCompressedRegister());
 
+        // 如果注册结果的数量大于0, 那么在这里对注册结果进行处理
         if (registerBrokerResultList.size() > 0) {
             RegisterBrokerResult registerBrokerResult = registerBrokerResultList.get(0);
             if (registerBrokerResult != null) {
