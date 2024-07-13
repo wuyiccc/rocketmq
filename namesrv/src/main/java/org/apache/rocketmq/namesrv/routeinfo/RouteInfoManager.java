@@ -147,15 +147,24 @@ public class RouteInfoManager {
         RegisterBrokerResult result = new RegisterBrokerResult();
         try {
             try {
+                // 加写锁，同一时间只能是一个线程来执行
                 this.lock.writeLock().lockInterruptibly();
 
+                // 下面这里是根据clusterName获取了一个set集合
                 Set<String> brokerNames = this.clusterAddrTable.computeIfAbsent(clusterName, k -> new HashSet<>());
+                // 将brokerName添加到这个集合中
+                // 这个就是在维护一个集群有哪些broker存在的一个set数据结构
+                // 重复的心跳发送, 这里set会自动去重
                 brokerNames.add(brokerName);
 
                 boolean registerFirst = false;
 
+                // 这里是根据brokerName获取到BrokerData
+                // 使用一个brokerAddrTable作为核心路由数据表
+                // 这里存放了所有的Broker的详细的路由数据
                 BrokerData brokerData = this.brokerAddrTable.get(brokerName);
                 if (null == brokerData) {
+                    // broker如果是第一次发送数据, 那么进行注册
                     registerFirst = true;
                     brokerData = new BrokerData(clusterName, brokerName, new HashMap<>());
                     this.brokerAddrTable.put(brokerName, brokerData);
@@ -194,6 +203,9 @@ public class RouteInfoManager {
                     }
                 }
 
+                // 每隔30s发送注册请求作为心跳的时候最核心的数据处理逻辑
+                // 每间隔30s都会封装一个新的BrokerLiveInfo放入map中
+                // 最新的BrokerLiveInfo中有一个当前时间戳，代表最近一次心跳的时间
                 BrokerLiveInfo prevBrokerLiveInfo = this.brokerLiveTable.put(brokerAddr,
                         new BrokerLiveInfo(
                                 System.currentTimeMillis(),
@@ -465,13 +477,16 @@ public class RouteInfoManager {
         return null;
     }
 
+    // 被定时任务调用，定时扫描不活跃的broker
     public int scanNotActiveBroker() {
         int removeCount = 0;
+        // 扫描brokerLiveTable, 拿到每个Broker最近一次心跳刷新的BrokerLiveInfo, 里面存储了最近一次心跳的时间
         Iterator<Entry<String, BrokerLiveInfo>> it = this.brokerLiveTable.entrySet().iterator();
         while (it.hasNext()) {
             Entry<String, BrokerLiveInfo> next = it.next();
             long last = next.getValue().getLastUpdateTimestamp();
             if ((last + BROKER_CHANNEL_EXPIRED_TIME) < System.currentTimeMillis()) {
+                // 如果最近一次心跳时间超过了120s，那么也就是说broker最近一次发送心跳的时间是在2min之前，那么就默认broker已经挂掉了
                 RemotingUtil.closeChannel(next.getValue().getChannel());
                 it.remove();
                 log.warn("The broker channel expired, {} {}ms", next.getKey(), BROKER_CHANNEL_EXPIRED_TIME);

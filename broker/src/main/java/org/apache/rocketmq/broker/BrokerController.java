@@ -910,7 +910,7 @@ public class BrokerController {
             this.registerBrokerAll(true, false, true);
         }
 
-        // 向线程池提交任务，向nameserver进行注册
+        // 向线程池提交任务，向nameserver进行注册，定时任务，在第一次延迟10s的注册请求发送之后，每隔30s发送一次注册请求作为心跳
         this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
 
             @Override
