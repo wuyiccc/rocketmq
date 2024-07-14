@@ -50,6 +50,7 @@ public class KVConfigManager {
             log.warn("Load KV config table exception", e);
         }
         if (content != null) {
+            // 基于json序列化格式进行反序列化，然后存入configTable中
             KVConfigSerializeWrapper kvConfigSerializeWrapper =
                 KVConfigSerializeWrapper.fromJson(content, KVConfigSerializeWrapper.class);
             if (null != kvConfigSerializeWrapper) {
@@ -61,6 +62,7 @@ public class KVConfigManager {
 
     public void putKVConfig(final String namespace, final String key, final String value) {
         try {
+            // 修改加写锁
             this.lock.writeLock().lockInterruptibly();
             try {
                 HashMap<String, String> kvTable = this.configTable.get(namespace);
@@ -90,6 +92,7 @@ public class KVConfigManager {
 
     public void persist() {
         try {
+            // 持久化加读锁
             this.lock.readLock().lockInterruptibly();
             try {
                 KVConfigSerializeWrapper kvConfigSerializeWrapper = new KVConfigSerializeWrapper();
