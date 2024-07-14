@@ -44,8 +44,10 @@ public class NamesrvController {
 
     private final NamesrvConfig namesrvConfig;
 
+    // netty server核心配置
     private final NettyServerConfig nettyServerConfig;
 
+    // 支持单线程定时调度
     private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(new ThreadFactoryImpl(
         "NSScheduledThread"));
     private final KVConfigManager kvConfigManager;
