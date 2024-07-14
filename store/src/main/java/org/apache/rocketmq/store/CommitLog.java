@@ -574,6 +574,7 @@ public class CommitLog {
                 return true;
             }
         } else {
+            // 对比timestamp
             if (storeTimestamp <= this.defaultMessageStore.getStoreCheckpoint().getMinTimestamp()) {
                 log.info("find check timestamp, {} {}",
                     storeTimestamp,
