@@ -50,15 +50,26 @@ import org.apache.rocketmq.common.protocol.route.TopicRouteData;
 import org.apache.rocketmq.common.sysflag.TopicSysFlag;
 import org.apache.rocketmq.remoting.common.RemotingUtil;
 
+/**
+ * broker 路由管理组件
+ */
 public class RouteInfoManager {
     private static final InternalLogger log = InternalLoggerFactory.getLogger(LoggerName.NAMESRV_LOGGER_NAME);
     // 长链接过期时间 2min
     private final static long BROKER_CHANNEL_EXPIRED_TIME = 1000 * 60 * 2;
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
+    // 一个broker集群有多个broker组(brokerName). 一个broker组有多个broker(主从)
+
+    // 每个topic在broker组里面都有相对应得到数据
     private final HashMap<String/* topic */, Map<String /* brokerName */ , QueueData>> topicQueueTable;
+
+    // 每个broker组对应的主从broker的数据地址id信息
     private final HashMap<String/* brokerName */, BrokerData> brokerAddrTable;
+
+    // 每个broker集群对应的broker组的名称, 一般一个nameserver对应一个broker集群(虽然一个nameserver可以管理多个broker集群)
     private final HashMap<String/* clusterName */, Set<String/* brokerName */>> clusterAddrTable;
+    // broker地址对应的心跳信息
     private final HashMap<String/* brokerAddr */, BrokerLiveInfo> brokerLiveTable;
     private final HashMap<String/* brokerAddr */, List<String>/* Filter Server */> filterServerTable;
 
@@ -762,9 +773,15 @@ public class RouteInfoManager {
 }
 
 class BrokerLiveInfo {
+
+    // 最近一次心跳时间
     private long lastUpdateTimestamp;
+    // broker 数据版本号
     private DataVersion dataVersion;
+
+    // broker channel的网络连接
     private Channel channel;
+    // 跟当前broker机器构成ha高可用的broker的地址
     private String haServerAddr;
 
     public BrokerLiveInfo(long lastUpdateTimestamp, DataVersion dataVersion, Channel channel,
