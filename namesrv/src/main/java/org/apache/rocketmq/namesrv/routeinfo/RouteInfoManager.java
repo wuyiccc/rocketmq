@@ -71,6 +71,13 @@ public class RouteInfoManager {
     private final HashMap<String/* clusterName */, Set<String/* brokerName */>> clusterAddrTable;
     // broker地址对应的心跳信息
     private final HashMap<String/* brokerAddr */, BrokerLiveInfo> brokerLiveTable;
+    // rocketmq 高阶功能, 可以基于tag来进行数据筛选, 比较简单, 没办法支持更加复杂细粒度的数据筛选
+    // rocketmq是支持一个高阶功能, 叫做filter server, 在每台broker机器上是可以启动一个filter sever
+    // filter server启动之后会跟本地broker来进行长连接构建, 注册以及心跳和保活
+    // 我们可以自动以一个消息筛选的class，一个类，上传到filter server里去, 我们消费数据的时候, 让broker把数据
+    // 先传输到本地机器的filter server, filter server基于你自定义的class来进行细粒度的数据筛选
+    // 把精细筛选的数据再回传给消费端
+    // 每个broker机器上是可以启动一个或者是多个filter server, 都会传输给nameserver
     private final HashMap<String/* brokerAddr */, List<String>/* Filter Server */> filterServerTable;
 
     public RouteInfoManager() {
