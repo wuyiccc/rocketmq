@@ -20,12 +20,18 @@ import org.apache.rocketmq.common.constant.PermName;
 
 public class TopicConfig {
     private static final String SEPARATOR = " ";
+
+    // 默认的topic是有16个read queue
     public static int defaultReadQueueNums = 16;
+    // 默认的topic是有16个 write queue
     public static int defaultWriteQueueNums = 16;
     private String topicName;
+
+    // 本broker机器存放的readqueue writequeue数量
     private int readQueueNums = defaultReadQueueNums;
     private int writeQueueNums = defaultWriteQueueNums;
     private int perm = PermName.PERM_READ | PermName.PERM_WRITE;
+    // 默认topic过滤类型是基于 tag
     private TopicFilterType topicFilterType = TopicFilterType.SINGLE_TAG;
     private int topicSysFlag = 0;
     private boolean order = false;

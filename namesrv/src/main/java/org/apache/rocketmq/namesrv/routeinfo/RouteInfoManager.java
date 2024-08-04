@@ -88,6 +88,7 @@ public class RouteInfoManager {
         this.filterServerTable = new HashMap<>(256);
     }
 
+    // 返回broker cluster信息
     public ClusterInfo getAllClusterInfo() {
         ClusterInfo clusterInfoSerializeWrapper = new ClusterInfo();
         clusterInfoSerializeWrapper.setBrokerAddrTable(this.brokerAddrTable);
@@ -95,6 +96,7 @@ public class RouteInfoManager {
         return clusterInfoSerializeWrapper;
     }
 
+    // 删除一个topic所有的数据
     public void deleteTopic(final String topic) {
         try {
             try {
@@ -139,6 +141,7 @@ public class RouteInfoManager {
         }
     }
 
+    // 查询所有的topic队列数据
     public TopicList getAllTopicList() {
         TopicList topicList = new TopicList();
         try {
@@ -156,14 +159,14 @@ public class RouteInfoManager {
     }
 
     public RegisterBrokerResult registerBroker(
-            final String clusterName,
-            final String brokerAddr,
-            final String brokerName,
-            final long brokerId,
-            final String haServerAddr,
-            final TopicConfigSerializeWrapper topicConfigWrapper,
-            final List<String> filterServerList,
-            final Channel channel) {
+            final String clusterName, // broker所属的cluster集群
+            final String brokerAddr, // broker机器地址
+            final String brokerName, // broker所属的组的名称
+            final long brokerId, // broker机器自己的id
+            final String haServerAddr, // broker互为ha server的地址
+            final TopicConfigSerializeWrapper topicConfigWrapper, // 当前这个broker机器上面包含的topic 队列的数据
+            final List<String> filterServerList, // broker机器上面部署的filter server列表
+            final Channel channel) { // 物理上的netty channel网络长连接
         RegisterBrokerResult result = new RegisterBrokerResult();
         try {
             try {
