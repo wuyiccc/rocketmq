@@ -32,6 +32,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Predicate;
 
+import org.apache.commons.validator.Var;
 import org.apache.rocketmq.common.DataVersion;
 import org.apache.rocketmq.common.MixAll;
 import org.apache.rocketmq.common.TopicConfig;
@@ -180,6 +181,7 @@ public class RouteInfoManager {
                 // 重复的心跳发送, 这里set会自动去重
                 brokerNames.add(brokerName);
 
+                // broker组是否第一次注册
                 boolean registerFirst = false;
 
                 // 这里是根据brokerName获取到BrokerData
@@ -192,9 +194,12 @@ public class RouteInfoManager {
                     brokerData = new BrokerData(clusterName, brokerName, new HashMap<>());
                     this.brokerAddrTable.put(brokerName, brokerData);
                 }
+                // 拿到broker组数据里面的小map，broker组里的broker机器map
                 Map<Long, String> brokerAddrsMap = brokerData.getBrokerAddrs();
                 //Switch slave to master: first remove <1, IP:PORT> in namesrv, then add <0, IP:PORT>
                 //The same IP:PORT must only have one record in brokerAddrTable
+                // 这里面是处理异常数据的, 如果说你注册过来的broker机器地址跟之前注册过的地址是一样的
+                // 但是broker id是不同的, 同一台机器, 启动的broker不同, 可能是不同的broker.conf, 那么可能会导致数据错误, 这里要移除这个节点
                 Iterator<Entry<Long, String>> it = brokerAddrsMap.entrySet().iterator();
                 while (it.hasNext()) {
                     Entry<Long, String> item = it.next();
@@ -204,6 +209,7 @@ public class RouteInfoManager {
                     }
                 }
 
+                // 把本次要注册的broker地址放到broker相对应的broker机器地址列表里面去
                 String oldAddr = brokerData.getBrokerAddrs().put(brokerId, brokerAddr);
                 if (MixAll.MASTER_ID == brokerId) {
                     log.info("cluster [{}] brokerName [{}] master address change from {} to {}",
