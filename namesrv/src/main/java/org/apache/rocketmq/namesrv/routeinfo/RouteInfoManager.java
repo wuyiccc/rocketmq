@@ -218,6 +218,8 @@ public class RouteInfoManager {
 
                 registerFirst = registerFirst || (null == oldAddr);
 
+                // 如果说你是一组broker里的master, 而且你上报了你管理的topic数据
+                // 处理broker组管理的topic的队列数据，会更新到内存里的map里去
                 if (null != topicConfigWrapper
                         && MixAll.MASTER_ID == brokerId) {
                     if (this.isBrokerTopicConfigChanged(brokerAddr, topicConfigWrapper.getDataVersion())
