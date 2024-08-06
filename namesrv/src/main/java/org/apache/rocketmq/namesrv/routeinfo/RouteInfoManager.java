@@ -736,6 +736,7 @@ public class RouteInfoManager {
         return topicList;
     }
 
+    // 获取指定集群的topic数据信息
     public TopicList getTopicsByCluster(String cluster) {
         TopicList topicList = new TopicList();
         try {
@@ -760,6 +761,7 @@ public class RouteInfoManager {
 
         return topicList;
     }
+
 
     public TopicList getUnitTopics() {
         return topicQueueTableIter(qd -> TopicSysFlag.hasUnitFlag(qd.getTopicSysFlag()));
