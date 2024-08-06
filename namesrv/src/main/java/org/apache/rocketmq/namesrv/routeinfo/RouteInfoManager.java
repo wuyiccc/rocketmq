@@ -255,11 +255,13 @@ public class RouteInfoManager {
                     }
                 }
 
+                // 如果是一组broker里面的slave
                 if (MixAll.MASTER_ID != brokerId) {
                     String masterAddr = brokerData.getBrokerAddrs().get(MixAll.MASTER_ID);
                     if (masterAddr != null) {
                         BrokerLiveInfo brokerLiveInfo = this.brokerLiveTable.get(masterAddr);
                         if (brokerLiveInfo != null) {
+                            // 设置新增的slave broker的ha server地址为 master broker的 ha server地址
                             result.setHaServerAddr(brokerLiveInfo.getHaServerAddr());
                             result.setMasterAddr(masterAddr);
                         }
@@ -288,6 +290,7 @@ public class RouteInfoManager {
         return null;
     }
 
+    // broker定期向nameserver进行心跳, 每次心跳都会更新一下broker机器里的时间戳
     public void updateBrokerInfoUpdateTimestamp(final String brokerAddr, long timeStamp) {
         BrokerLiveInfo prev = this.brokerLiveTable.get(brokerAddr);
         if (prev != null) {
@@ -295,6 +298,7 @@ public class RouteInfoManager {
         }
     }
 
+    // 维护broker里面topic 的数据
     private void createAndUpdateQueueData(final String brokerName, final TopicConfig topicConfig) {
         QueueData queueData = new QueueData();
         queueData.setBrokerName(brokerName);
