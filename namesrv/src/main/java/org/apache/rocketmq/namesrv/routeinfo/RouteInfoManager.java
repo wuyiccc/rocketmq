@@ -322,6 +322,7 @@ public class RouteInfoManager {
         }
     }
 
+    // perm是broker对每个topic权限设置的值
     public int wipeWritePermOfBrokerByLock(final String brokerName) {
         return operateWritePermOfBrokerByLock(brokerName, RequestCode.WIPE_WRITE_PERM_OF_BROKER);
     }
@@ -375,6 +376,7 @@ public class RouteInfoManager {
         return topicCnt;
     }
 
+    // 取消注册broker
     public void unregisterBroker(
             final String clusterName,
             final String brokerAddr,
@@ -435,6 +437,7 @@ public class RouteInfoManager {
         }
     }
 
+    // 对一个broker, 把他管理的数据移除
     private void removeTopicByBrokerName(final String brokerName) {
         Set<String> noBrokerRegisterTopic = new HashSet<>();
 
@@ -453,6 +456,11 @@ public class RouteInfoManager {
         noBrokerRegisterTopic.forEach(topicQueueTable::remove);
     }
 
+    /**
+     *
+     * 获取我们的一个topic路由数据, 生产消息和消费消息的时候, 设置都是nameserver地址,
+     * 针对一个tpoic里的多个queues, 来进行路由, 我这次数据要写入到哪个queue里去, 这个queue在那个broker里面
+     */
     public TopicRouteData pickupTopicRouteData(final String topic) {
         TopicRouteData topicRouteData = new TopicRouteData();
         boolean foundQueueData = false;
