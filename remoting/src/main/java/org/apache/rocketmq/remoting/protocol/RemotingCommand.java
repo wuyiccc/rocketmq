@@ -76,17 +76,27 @@ public class RemotingCommand {
         }
     }
 
+    // 请求编号
     private int code;
+    // 编程语言
     private LanguageCode language = LanguageCode.JAVA;
+    // 版本号
     private int version = 0;
+    // 请求id
     private int opaque = requestId.getAndIncrement();
+    // 标识符
     private int flag = 0;
+    // 备注
     private String remark;
+    // 扩展字段
     private HashMap<String, String> extFields;
+    // 自定义header
     private transient CommandCustomHeader customHeader;
 
+    // rpc调用序列化类型, 默认是json
     private SerializeType serializeTypeCurrentRPC = serializeTypeConfigInThisServer;
 
+    // 请求消息体, 会把真正的消息体序列化成字节数组
     private transient byte[] body;
 
     protected RemotingCommand() {
