@@ -53,10 +53,20 @@ public class NamesrvController {
     private final KVConfigManager kvConfigManager;
     private final RouteInfoManager routeInfoManager;
 
+    /**
+     * 远程网络通信服务器, 跟broker, producer, consumer来进行网络通信的
+     * 他内部必然是基于netty启动一个网络服务器, 同时你也可以注册一些请求处理组件, 你还可以通过他对client/broker发起一个rpc调用, 同步, 异步, oneway
+     */
     private RemotingServer remotingServer;
 
+    /**
+     * broker链接事件监听器
+     */
     private BrokerHousekeepingService brokerHousekeepingService;
 
+    /**
+     * 网络通信线程池, 对请求进行处理的线程池
+     */
     private ExecutorService remotingExecutor;
 
     private Configuration configuration;
