@@ -70,6 +70,8 @@ public class NamesrvController {
     private ExecutorService remotingExecutor;
 
     private Configuration configuration;
+
+    // 观察文件变动的服务组件
     private FileWatchService fileWatchService;
 
     public NamesrvController(NamesrvConfig namesrvConfig, NettyServerConfig nettyServerConfig) {
