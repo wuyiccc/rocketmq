@@ -46,6 +46,7 @@ public class FileWatchService extends ServiceThread {
     // 消息摘要
     private MessageDigest md = MessageDigest.getInstance("MD5");
 
+    // 可以允许你传进来一个watch file列表
     public FileWatchService(final String[] watchFiles,
         final Listener listener) throws Exception {
         this.listener = listener;
@@ -65,6 +66,7 @@ public class FileWatchService extends ServiceThread {
         return "FileWatchService";
     }
 
+    // 每隔500ms对要监听的文件内容进行一个检查
     @Override
     public void run() {
         log.info(this.getServiceName() + " service started");
@@ -81,8 +83,11 @@ public class FileWatchService extends ServiceThread {
                         log.warn(this.getServiceName() + " service has exception when calculate the file hash. ", ignored);
                         continue;
                     }
+                    // 根据hash值摘要判断文件内容是否发生变化, 如果不一样说明文件内容有变化
                     if (!newHash.equals(fileCurrentHash.get(i))) {
+                        // 对文件当前的hash值进行一个更新
                         fileCurrentHash.set(i, newHash);
+                        // 如果文件内容有变化，则回调你的监听器
                         listener.onChanged(watchFiles.get(i));
                     }
                 }
@@ -93,6 +98,7 @@ public class FileWatchService extends ServiceThread {
         log.info(this.getServiceName() + " service end");
     }
 
+    // 根据文件内容计算内容摘要hash值
     private String hash(String filePath) throws IOException {
         Path path = Paths.get(filePath);
         md.update(Files.readAllBytes(path));
