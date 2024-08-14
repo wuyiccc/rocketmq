@@ -96,6 +96,8 @@ public class NettyRemotingServer extends NettyRemotingAbstract implements Remoti
 
     public NettyRemotingServer(final NettyServerConfig nettyServerConfig,
         final ChannelEventListener channelEventListener) {
+        // 接受rpc调用请求, 发起rpc调用请求
+        // 设置oneway和async 的信号量数量
         super(nettyServerConfig.getServerOnewaySemaphoreValue(), nettyServerConfig.getServerAsyncSemaphoreValue());
         this.serverBootstrap = new ServerBootstrap();
         this.nettyServerConfig = nettyServerConfig;
